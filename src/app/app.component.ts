@@ -39,13 +39,13 @@ export class AppComponent implements OnInit {
 
 
   ngOnInit() {
-    //listen for auth state changes
+    //listen for auth status changes
     this.auth.onAuthStateChanged(user => {
       if (user) {
         //get data
-        this.db.collection('guides').get().then(snapshot => {
+        this.db.collection('guides').onSnapshot(snapshot => {
           setupGuides(snapshot.docs);
-          setupUI(user)
+          setupUI(user);
         })
       } else {
         // @ts-ignore
@@ -55,7 +55,7 @@ export class AppComponent implements OnInit {
     });
 
     //signup
-    const signupForm = document.querySelector('#signup-form');
+    const signupForm = document.querySelector('#signup-form') as any;
     signupForm.addEventListener('submit', (e) => {
       e.preventDefault();
       let email = signupForm['signup-email'].value;
@@ -63,8 +63,7 @@ export class AppComponent implements OnInit {
       this.auth.createUserWithEmailAndPassword(email, password).then(cred => {
         const modal = document.querySelector('#modal-signup');
         M.Modal.getInstance(modal).close();
-        signupForm['email'].value = null;
-        signupForm['password'].value = null
+        signupForm.reset();
       })
     })
     //logout
@@ -112,10 +111,16 @@ export class AppComponent implements OnInit {
       }
     };
     const loggedOutLinks = document.querySelectorAll('.logged-out') as any;
-    const loggedInLinks = document.querySelectorAll('.logged-in') as any
+    const loggedInLinks = document.querySelectorAll('.logged-in') as any;
+    const accountDetails = document.querySelector('.account-details') as any
+
 
     const setupUI = (user) => {
       if (user) {
+        const html = `
+        <div>Logged in as ${user.email}</div>
+        `;
+        accountDetails.innerHTML = html;
         loggedInLinks.forEach(item => {
           item.style.display = 'block'
         });
@@ -123,6 +128,7 @@ export class AppComponent implements OnInit {
           item.style.display = 'none'
         })
       } else {
+        // accountDetails.innerHTML = '';
         loggedInLinks.forEach(item => {
           item.style.display = 'none'
         });
@@ -130,8 +136,24 @@ export class AppComponent implements OnInit {
           item.style.display = 'block'
         })
       }
-    }
+    };
 
+    //create new guide
+
+    const createForm = document.querySelector('#create-form') as any;
+    createForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.db.collection('guides').add({
+        title: createForm['title'].value,
+        content: createForm['content'].value
+      }).then(() => {
+        const modal = document.querySelector('#modal-create');
+        M.Modal.getInstance(modal).close();
+        createForm.reset();
+      }).catch(err => {
+        console.log(err.message)
+      })
+    });
   }
 
 }
