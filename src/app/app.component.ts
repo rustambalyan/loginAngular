@@ -113,6 +113,7 @@ export class AppComponent implements OnInit {
         guideList.innerHTML = `<h5 class="center-align">Login to view guides</h5>`
       }
     };
+    console.log('hello world')
 
     const loggedOutLinks = document.querySelectorAll('.logged-out') as any;
     const loggedInLinks = document.querySelectorAll('.logged-in') as any
