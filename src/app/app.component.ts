@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import M from './aps.js'
+import { FormControl, FormGroup } from '@angular/forms';
+import M from './materialize.js';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +14,9 @@ export class AppComponent implements OnInit {
   title = 'loginAngular';
 
   constructor() {
+
   }
+
 
   firebaseConfig = {
     apiKey: "AIzaSyBh5JdB6XoUSNLkd1rm6R_HpOGLUFYJobo",
@@ -32,6 +34,7 @@ export class AppComponent implements OnInit {
   db = this.firebaseApp.firestore();
   auth = this.firebaseApp.auth();
 
+
   signupForm: FormGroup = new FormGroup<any>({
     email: new FormControl,
     password: new FormControl
@@ -39,20 +42,21 @@ export class AppComponent implements OnInit {
 
 
   ngOnInit() {
+    const accountDetails = document.querySelector('.account-details') as any;
     //listen for auth status changes
     this.auth.onAuthStateChanged(user => {
       if (user) {
-        //get data
         this.db.collection('guides').onSnapshot(snapshot => {
           setupGuides(snapshot.docs);
-          setupUI(user);
-        })
+          setupUI(user)
+        }, err => console.log(err));
       } else {
+
         // @ts-ignore
-        setupUI()
+        setupUI();
         setupGuides([])
       }
-    });
+    })
 
     //signup
     const signupForm = document.querySelector('#signup-form') as any;
@@ -61,9 +65,16 @@ export class AppComponent implements OnInit {
       let email = signupForm['signup-email'].value;
       let password = signupForm['signup-password'].value;
       this.auth.createUserWithEmailAndPassword(email, password).then(cred => {
+        return this.db.collection('users').doc(cred.user.uid).set({
+          bio: signupForm['signup-bio'].value
+        })
+      }).then(() => {
         const modal = document.querySelector('#modal-signup');
         M.Modal.getInstance(modal).close();
         signupForm.reset();
+        signupForm.querySelector('.error').innerHtml = ''
+      }).catch(err => {
+        signupForm.querySelector('.error').innerHtml = err.message
       })
     })
     //logout
@@ -112,23 +123,21 @@ export class AppComponent implements OnInit {
     };
     const loggedOutLinks = document.querySelectorAll('.logged-out') as any;
     const loggedInLinks = document.querySelectorAll('.logged-in') as any;
-    const accountDetails = document.querySelector('.account-details') as any
 
 
     const setupUI = (user) => {
       if (user) {
-        const html = `
-        <div>Logged in as ${user.email}</div>
-        `;
-        accountDetails.innerHTML = html;
-        loggedInLinks.forEach(item => {
-          item.style.display = 'block'
-        });
-        loggedOutLinks.forEach(item => {
-          item.style.display = 'none'
+        this.db.collection('users').doc(user.uid).get().then(doc => {
+          accountDetails.innerHTML = `
+            <div>Logged in as ${user.email}</div>
+            <div>${doc.data()['bio']}</div>
+
+                `;
         })
+        loggedInLinks.forEach(item => item.style.display = 'block')
+        loggedOutLinks.forEach(item => item.style.display = 'none')
       } else {
-        // accountDetails.innerHTML = '';
+        accountDetails.innerHTML = '';
         loggedInLinks.forEach(item => {
           item.style.display = 'none'
         });

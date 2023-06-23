@@ -1,9 +1,8 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <!-- NAVBAR -->
 <nav class="z-depth-0 grey lighten-4">
   <div class="nav-wrapper container">
     <a href="#" class="brand-logo">
-      <img src="assets/img/logo.svg" alt="logo" style="width: 180px; margin-top: 10px;">
+      <span style="width: 180px; margin-top: 10px; color: grey">logo</span>
     </a>
     <ul id="nav-mobile" class="right hide-on-med-and-down">
       <li class="logged-in" style="display: none">
@@ -25,6 +24,8 @@
   </div>
 </nav>
 
+
+
 <!-- SIGN UP MODAL -->
 <div id="modal-signup" class="modal">
   <div class="modal-content">
@@ -38,7 +39,12 @@
         <input type="password" id="signup-password" name="password" required />
         <label for="signup-password">Choose password</label>
       </div>
+      <div class="input-field">
+        <input type="text" id="signup-bio" name="bio" required />
+        <label for="signup-bio">One Line Bio</label>
+      </div>
       <button class="btn yellow darken-2 z-depth-0">Sign up</button>
+      <p class="error pink-text center-align"></p>
     </form>
   </div>
 </div>
@@ -57,6 +63,7 @@
         <label for="login-password">Your password</label>
       </div>
       <button class="btn yellow darken-2 z-depth-0">Login</button>
+      <p class="error pink-text center-align"></p>
     </form>
   </div>
 </div>
